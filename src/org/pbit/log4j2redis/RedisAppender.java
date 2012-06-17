@@ -17,15 +17,18 @@ import redis.clients.jedis.JedisPool;
 
 public class RedisAppender extends AppenderSkeleton {
     
-    static JedisPool pool;
-    static Map<Long, Jedis> map = new ConcurrentHashMap<Long, Jedis>();
+    protected JedisPool pool;
+    protected Map<Long, Jedis> map = new ConcurrentHashMap<Long, Jedis>();
+    protected String localHostName;
+    protected String processName;
     
     @Override
     protected void append(LoggingEvent event) {
+        //unclear: how about batching events to reduce network gossip?
         try {
-            StringBuilder id = new StringBuilder(InetAddress.getLocalHost().getHostName());
+            StringBuilder id = new StringBuilder(getLocalHostName());
             id.append(" - ");
-            id.append(ManagementFactory.getRuntimeMXBean().getName());
+            id.append(getProcessName());
             id.append(" - ");
             id.append(Thread.currentThread().getId());
             id.append(" - ");
@@ -51,6 +54,22 @@ public class RedisAppender extends AppenderSkeleton {
     
     public void setHost(String host) {
         pool = new JedisPool(host);
+    }
+    
+    protected String getLocalHostName() throws Exception {
+        if (localHostName == null) {
+            localHostName = InetAddress.getLocalHost().getHostName();
+        }
+
+        return localHostName;
+    }
+    
+    protected String getProcessName() {
+        if (processName == null) {
+            processName = ManagementFactory.getRuntimeMXBean().getName();
+        }
+
+        return processName;
     }
     
     protected Jedis getJedis() {

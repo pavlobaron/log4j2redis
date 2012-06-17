@@ -23,6 +23,7 @@ the one and only target node just writes into memory (attention: after its resta
 slaves might get lost, so back it up - it's just append-only logs). Of course, a more complex
 Redis topology can be implemented and used, but therefore, consult Redis documentation.
 
-There still is a black hole in the code with a central map - I'll get back to it later.
+There still is a black hole in the code with a central map - I'll get back to it later. And I also
+need to elaborate on batching events instead of sending every single one over the network.
 
 Feedback and contribution are welcome.
