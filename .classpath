@@ -4,6 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="deps/jedis-2.1.0.jar"/>
 	<classpathentry kind="lib" path="deps/log4j-1.2.17.jar"/>
-	<classpathentry kind="lib" path="deps/commons-pool-1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
