@@ -1,4 +1,4 @@
-package org.pbit.log4j2redis;
+package test.org.pbit.log4j2redis;
 
 import org.apache.log4j.Logger;
 
