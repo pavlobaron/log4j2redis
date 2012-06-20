@@ -5,6 +5,8 @@ log4j appender that writes straight to Redis.
 
 (the 42 looking thingy in the name is intended, yes)
 
+## Configuration
+
 This appender writes to a Redis store. Here is an example configuration:
 
     log4j.rootLogger=DEBUG, REDIS
@@ -14,7 +16,9 @@ This appender writes to a Redis store. Here is an example configuration:
 
 **Host** and **Port** are optional properties, so if they are not set it will use the standard **localhost** and **6379**.
 
-Every log message will be written behind a key of this format:
+## Message Format
+
+Every **log message** will be written behind a key of this format:
 
     hostname - process_name_on_host - thread_id_there - timestamp - log_level - unique UUID
 
@@ -24,9 +28,14 @@ the one and only target node just writes into memory (attention: after its resta
 slaves might get lost, so back it up - it's just append-only logs). Of course, a more complex
 Redis topology can be implemented and used, but therefore, consult Redis documentation.
 
-Every log message is first stored in memory and after asynchronously sent to Redis. Thus network
-latency doesn't impact log writing -- unless, of course, message writing is too fast and network
-is too slow, thus it might throw "out of memory".
+## Message Writing
+
+Every **log message** will be first stored in memory and after asynchronously sent to Redis. Thus
+network latency doesn't impact log writing - unless, of course, that message writing is too
+fast and network is too slow, what might throw an "out of memory"; but it would be the worst
+case ever.
+
+## Contribution
 
 There still is a black hole in the code with a central map - I'll get back to it later.
 
