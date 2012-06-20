@@ -37,6 +37,7 @@ case ever.
 
 ## Developers
 Pavlo Baron (original version)
+
 Leandro Silva
 
 ## Contribution
