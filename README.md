@@ -12,7 +12,7 @@ This appender writes to a Redis store. Here is an example configuration:
     log4j.appender.REDIS.host=localhost
     log4j.appender.REDIS.port=6379
 
-**Host** and **Port** are option properties, so if they are not set it will use the standard **localhost** and **6379**.
+**Host** and **Port** are optional properties, so if they are not set it will use the standard **localhost** and **6379**.
 
 Every log message will be written behind a key of this format:
 
