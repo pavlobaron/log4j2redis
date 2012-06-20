@@ -35,6 +35,10 @@ network latency doesn't impact log writing - unless, of course, that message wri
 fast and network is too slow, what might throw an "out of memory"; but it would be the worst
 case ever.
 
+## Developers
+Pavlo Baron (original version)
+Leandro Silva
+
 ## Contribution
 
 There still is a black hole in the code with a central map - I'll get back to it later.
