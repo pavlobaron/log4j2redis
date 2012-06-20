@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -44,15 +45,13 @@ public class RedisAppender extends AppenderSkeleton {
 		
 		new Timer().schedule(new TimerTask() {
 			public void run() {
-				String id;
+				Entry<String, String> message;
 				
-				for (Iterator<String> ids = messages.keySet().iterator(); ids.hasNext();) {
-					id = ids.next();
-					jedis.set(id, messages.get(id));
-					ids.remove();
+				for (Iterator<Entry<String, String>> it = messages.entrySet().iterator(); it.hasNext();) {
+					message = it.next();
+					jedis.set(message.getKey(), message.getValue());
+					it.remove();
 				}
-				
-				System.out.println("Waiting 1 second");
 			}
 		}, 1000, 1000);
 	}
@@ -67,9 +66,9 @@ public class RedisAppender extends AppenderSkeleton {
             id.append(" - ");
             id.append(now());
             id.append(" - ");
-            id.append(event.getLevel().toString());
+            id.append(event.getLevel());
             id.append(" - ");
-            id.append(UUID.randomUUID().toString());
+            id.append(UUID.randomUUID());
             
             messages.put(id.toString(), event.getRenderedMessage());
         } catch (Exception e) {
