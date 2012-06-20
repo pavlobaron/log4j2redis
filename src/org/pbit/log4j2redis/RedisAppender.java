@@ -21,8 +21,8 @@ import redis.clients.jedis.Jedis;
 public class RedisAppender extends AppenderSkeleton {
     
     private Jedis jedis;
-    private String host;
-    private int port;
+    private String host = "localhost";
+    private int port = 6379;
     
     private Map<String, String> messages;
     private String localHostName;
