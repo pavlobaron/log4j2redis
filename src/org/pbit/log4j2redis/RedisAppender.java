@@ -20,41 +20,42 @@ import org.apache.log4j.spi.LoggingEvent;
 import redis.clients.jedis.Jedis;
 
 public class RedisAppender extends AppenderSkeleton {
-    
+
     private Jedis jedis;
     private String host = "localhost";
     private int port = 6379;
-    
+
     private Map<String, String> messages;
     private String localHostName;
     private String processName;
-    
-	public void activateOptions() {
-		super.activateOptions();
 
-		jedis = new Jedis(host, port);
-		messages = new ConcurrentHashMap<String, String>();
-		
+    public void activateOptions() {
+        super.activateOptions();
+
+        jedis = new Jedis(host, port);
+        messages = new ConcurrentHashMap<String, String>();
+
         try {
-			localHostName = InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			localHostName = "localhost";
-		}
-        
-		processName = ManagementFactory.getRuntimeMXBean().getName();
-		
-		new Timer().schedule(new TimerTask() {
-			public void run() {
-				Entry<String, String> message;
-				
-				for (Iterator<Entry<String, String>> it = messages.entrySet().iterator(); it.hasNext();) {
-					message = it.next();
-					jedis.set(message.getKey(), message.getValue());
-					it.remove();
-				}
-			}
-		}, 1000, 1000);
-	}
+            localHostName = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            localHostName = "localhost";
+        }
+
+        processName = ManagementFactory.getRuntimeMXBean().getName();
+
+        new Timer().schedule(new TimerTask() {
+            public void run() {
+                Entry<String, String> message;
+
+                for (Iterator<Entry<String, String>> it = messages.entrySet()
+                        .iterator(); it.hasNext();) {
+                    message = it.next();
+                    jedis.set(message.getKey(), message.getValue());
+                    it.remove();
+                }
+            }
+        }, 1000, 1000);
+    }
 
     protected void append(LoggingEvent event) {
         try {
@@ -69,31 +70,31 @@ public class RedisAppender extends AppenderSkeleton {
             id.append(event.getLevel());
             id.append(" - ");
             id.append(UUID.randomUUID());
-            
+
             messages.put(id.toString(), event.getRenderedMessage());
         } catch (Exception e) {
-            //what to do? ignore? send back error - from log???
+            // what to do? ignore? send back error - from log???
         }
     }
 
     public void close() {
     }
-    
-    public void setHost(String host) {
-		this.host = host;
-	}
 
-	public void setPort(int port) {
-		this.port = port;
-	}
-	
-	public boolean requiresLayout() {
-    	return false;
+    public void setHost(String host) {
+        this.host = host;
     }
-    
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public boolean requiresLayout() {
+        return false;
+    }
+
     private String now() {
-    	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
         return dateFormat.format(new Date());
     }
 }
