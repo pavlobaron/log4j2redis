@@ -24,8 +24,8 @@ the one and only target node just writes into memory (attention: after its resta
 slaves might get lost, so back it up - it's just append-only logs). Of course, a more complex
 Redis topology can be implemented and used, but therefore, consult Redis documentation.
 
-Every log message is first stored in memory and after asynchronously sent to Redis. This network
-latency doesn't impact log writing - unless, of course, message writing is too fast and network
+Every log message is first stored in memory and after asynchronously sent to Redis. Thus network
+latency doesn't impact log writing -- unless, of course, message writing is too fast and network
 is too slow, thus it might throw "out of memory".
 
 There still is a black hole in the code with a central map - I'll get back to it later.
