@@ -28,7 +28,7 @@ public class RedisAppender extends AppenderSkeleton {
     private Map<String, String> messages;
     private String localHostName;
     private String processName;
-    private int MSetMax = 100;
+    private int msetmax = 100;
 
     public void activateOptions() {
         super.activateOptions();
@@ -51,11 +51,12 @@ public class RedisAppender extends AppenderSkeleton {
 
                 int i = 0;
                 int msz = messages.size();
-                int sz = msz < MSetMax ? msz : MSetMax;
+                int sz = msz < msetmax ? msz : msetmax;
 
                 byte[][] kv = new byte[sz * 2][];
                 for (Iterator<Entry<String, String>> it = messages.entrySet().iterator(); it.hasNext();) {
                     message = it.next();
+
                     kv[i] = SafeEncoder.encode(message.getKey());
                     kv[i + 1] = SafeEncoder.encode(message.getValue());
                     i += 2;
@@ -66,7 +67,7 @@ public class RedisAppender extends AppenderSkeleton {
                         jedis.mset(kv);
                         msz -= sz;
                         if (msz > 0) {
-                            sz = msz < MSetMax ? msz : MSetMax;
+                            sz = msz < msetmax ? msz : msetmax;
                             kv = new byte[sz * 2][];
                             i = 0;
                         }
@@ -133,8 +134,8 @@ public class RedisAppender extends AppenderSkeleton {
         this.port = Integer.valueOf(port);
     }
 
-    public void setMsetmax(String m) {
-        this.MSetMax = Integer.valueOf(m);
+    public void setMsetmax(String msetmax) {
+        this.msetmax = Integer.valueOf(msetmax);
     }
 
     public boolean requiresLayout() {
