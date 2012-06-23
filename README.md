@@ -13,8 +13,10 @@ This appender writes to a Redis store. Here is an example configuration:
     log4j.appender.REDIS=org.pbit.log4j2redis.RedisAppender
     log4j.appender.REDIS.host=localhost
     log4j.appender.REDIS.port=6379
+    log4j.appender.REDIS.msetmax=100
 
 **Host** and **Port** are optional properties, so if they are not set it will use the standard **localhost** and **6379**.
+**msetmax** (default 100) is the number of messages to be sent in one batch MSET command.
 
 ## Message Format
 
@@ -34,6 +36,11 @@ Every **log message** will be first stored in memory and after asynchronously se
 network latency doesn't impact log writing - unless, of course, that message writing is too
 fast and network is too slow, what might throw an "out of memory"; but it would be the worst
 case ever.
+
+## Developers
+Pavlo Baron (original version)
+
+Leandro Silva
 
 ## Contribution
 
