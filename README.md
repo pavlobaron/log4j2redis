@@ -15,8 +15,10 @@ This appender writes to a Redis store. Here is an example configuration:
     log4j.appender.REDIS.port=6379
     log4j.appender.REDIS.msetmax=100
 
-**Host** and **Port** are optional properties, so if they are not set it will use the standard **localhost** and **6379**.
-**msetmax** (default 100) is the number of messages to be sent in one batch MSET command.
+Where:
+
+* **host** and **port** are optional properties, so if they are not set it will use the standard **localhost** and **6379**
+* **msetmax** is the number of messages to be sent in one batch MSET command, which defaults to **100**
 
 ## Message Format
 
@@ -38,9 +40,9 @@ fast and network is too slow, what might throw an "out of memory"; but it would 
 case ever.
 
 ## Developers
-Pavlo Baron (original version)
 
-Leandro Silva
+* Pavlo Baron (original version)
+* Leandro Silva
 
 ## Contribution
 
