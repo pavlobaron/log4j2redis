@@ -14,19 +14,17 @@ This appender writes to a Redis store. Here is an example configuration:
     log4j.appender.REDIS.host=localhost
     log4j.appender.REDIS.port=6379
     log4j.appender.REDIS.msetmax=100
+    log4j.appender.REDIS.layout=org.pbit.log4j2redis.RedisPatternLayout
+    log4j.appender.REDIS.layout.ConversionPattern=%H - %P - %t - %d - %p - %U
 
 Where:
 
 * **host** and **port** are optional properties, so if they are not set it will use the standard **localhost** and **6379**
 * **msetmax** is the number of messages to be sent in one batch MSET command, which defaults to **100**
+* RedisPatternLayout extends the standard PatternLayout with %U (UUID), %P (process name) and %H (host) The pattern is used
+to build the Redis key, while the simply rendered log message will be the value behind it.
 
-## Message Format
-
-Every **log message** will be written behind a key of this format:
-
-    hostname - process_name_on_host - thread_id_there - timestamp - log_level - unique UUID
-
-That way, it should be possible to uniquely collect log messages from any host while writing
+It's recommended to use %U, %P and %H. That way, it should be possible to uniquely collect log messages from any host while writing
 to one single Redis node. Redis can of course be configured to have persisting slaves while
 the one and only target node just writes into memory (attention: after its restart the data on
 slaves might get lost, so back it up - it's just append-only logs). Of course, a more complex
@@ -41,7 +39,7 @@ case ever.
 
 ## Developers
 
-* Pavlo Baron (original version)
+* Pavlo Baron
 * Leandro Silva
 
 ## Contribution

@@ -1,17 +1,33 @@
+/**
+* This file is part of log4j2redis
+*
+* Copyright (c) 2012 by Pavlo Baron (pb at pbit dot org)
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+
+* @author Pavlo Baron <pb at pbit dot org>
+* @author Landro Silva
+* @copyright 2012 Pavlo Baron
+**/
+
 package org.pbit.log4j2redis;
 
-import java.lang.management.ManagementFactory;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.AppenderSkeleton;
@@ -26,8 +42,6 @@ public class RedisAppender extends AppenderSkeleton {
     private int port = 6379;
 
     private Map<String, String> messages;
-    private String localHostName;
-    private String processName;
     private int msetmax = 100;
 
     public void activateOptions() {
@@ -35,13 +49,6 @@ public class RedisAppender extends AppenderSkeleton {
 
         jedis = new Jedis(host, port);
         messages = new ConcurrentHashMap<String, String>();
-        try {
-            localHostName = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            localHostName = "localhost";
-        }
-
-        processName = ManagementFactory.getRuntimeMXBean().getName();
 
         new Timer().schedule(new TimerTask() {
             public void run() {
@@ -78,46 +85,11 @@ public class RedisAppender extends AppenderSkeleton {
                 // System.out.println("Expend here: " + expendHere + " ns");
             }
         }, 1000, 1000);
-
-        /*
-         left here for benchmark comparison, should be deleted when it's proven that the
-         version above indeed is x1.5 or even 2.0 faster
-         
-         new Timer().schedule(new TimerTask() {
-            public void run() {
-                long begin = System.nanoTime();
-                
-                Entry<String, String> message;
-        
-                for (Iterator<Entry<String, String>> it = messages.entrySet().iterator(); it.hasNext();) {
-                    message = it.next();
-                    jedis.set(message.getKey(), message.getValue());
-                    it.remove();
-                }
-                
-                long expendHere = System.nanoTime() - begin;
-                
-                System.out.println("Expend here: " + expendHere + " ns");
-            }
-        }, 5000, 5000);
-        */
     }
 
     protected void append(LoggingEvent event) {
         try {
-            StringBuilder id = new StringBuilder(localHostName);
-            id.append(" - ");
-            id.append(processName);
-            id.append(" - ");
-            id.append(Thread.currentThread().getId());
-            id.append(" - ");
-            id.append(now());
-            id.append(" - ");
-            id.append(event.getLevel());
-            id.append(" - ");
-            id.append(UUID.randomUUID());
-
-            messages.put(id.toString(), event.getRenderedMessage());
+            messages.put(this.layout.format(event), event.getRenderedMessage());
         } catch (Exception e) {
             // what to do? ignore? send back error - from log???
         }
@@ -130,21 +102,15 @@ public class RedisAppender extends AppenderSkeleton {
         this.host = host;
     }
 
-    public void setPort(String port) {
-        this.port = Integer.valueOf(port);
+    public void setPort(int port) {
+        this.port = port;
     }
 
-    public void setMsetmax(String msetmax) {
-        this.msetmax = Integer.valueOf(msetmax);
+    public void setMsetmax(int msetmax) {
+        this.msetmax = msetmax;
     }
 
     public boolean requiresLayout() {
-        return false;
-    }
-
-    private String now() {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-
-        return dateFormat.format(new Date());
+        return true;
     }
 }
