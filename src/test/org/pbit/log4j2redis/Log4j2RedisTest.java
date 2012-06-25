@@ -29,7 +29,7 @@ public class Log4j2RedisTest {
     public static class LogThread extends Thread {
         Logger log = Logger.getLogger("LogThread");
         public void run() {
-            for (long i = 0; i < 321; i++)
+            for (long i = 0; i < 10000; i++)
                 log.warn("whatever " + i);
         }
     }
@@ -37,11 +37,11 @@ public class Log4j2RedisTest {
     static Logger log = Logger.getLogger("LogMainThread");
     
     public static void main(String[] args) {
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 1; i <= 9; i++) {
             new Log4j2RedisTest.LogThread().start();
         }
         
-        for (long i = 0; i < 442; i++) {
+        for (long i = 0; i < 10000; i++) {
             log.error("that's me " + i);
         }
     }

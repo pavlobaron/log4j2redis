@@ -37,12 +37,14 @@ import redis.clients.jedis.Jedis;
 import redis.clients.util.SafeEncoder;
 
 public class RedisAppender extends AppenderSkeleton {
-    private Jedis jedis;
+    // Log4J properties
     private String host = "localhost";
     private int port = 6379;
-
-    private Map<String, String> messages;
     private int msetmax = 100;
+
+    // Redis connection and messages buffer
+    private Jedis jedis;
+    private Map<String, String> messages;
 
     public void activateOptions() {
         super.activateOptions();
@@ -56,27 +58,34 @@ public class RedisAppender extends AppenderSkeleton {
 
                 Entry<String, String> message;
 
-                int i = 0;
-                int msz = messages.size();
-                int sz = msz < msetmax ? msz : msetmax;
+                int currentMessagesCount = messages.size();
+                int bucketSize = currentMessagesCount < msetmax ? currentMessagesCount : msetmax;
+                byte[][] bucket = new byte[bucketSize * 2][];
 
-                byte[][] kv = new byte[sz * 2][];
+                int messageIndex = 0;
+                
                 for (Iterator<Entry<String, String>> it = messages.entrySet().iterator(); it.hasNext();) {
                     message = it.next();
-
-                    kv[i] = SafeEncoder.encode(message.getKey());
-                    kv[i + 1] = SafeEncoder.encode(message.getValue());
-                    i += 2;
-
                     it.remove();
 
-                    if (i == sz * 2) {
-                        jedis.mset(kv);
-                        msz -= sz;
-                        if (msz > 0) {
-                            sz = msz < msetmax ? msz : msetmax;
-                            kv = new byte[sz * 2][];
-                            i = 0;
+                    // [k1, v1, k2, v2, ..., kN, vN]
+                    bucket[messageIndex] = SafeEncoder.encode(message.getKey());
+                    bucket[messageIndex + 1] = SafeEncoder.encode(message.getValue());
+                    messageIndex += 2;
+
+                    if (messageIndex == bucketSize * 2) {
+                        jedis.mset(bucket);
+                        
+                        currentMessagesCount -= bucketSize;
+                        
+                        if (currentMessagesCount == 0) {
+                        	// get out the loop and wait 1/2 second
+                        	break;
+                        } else {
+                        	bucketSize = currentMessagesCount < msetmax ? currentMessagesCount : msetmax;
+                            bucket = new byte[bucketSize * 2][];
+                            
+                            messageIndex = 0;
                         }
                     }
                 }
@@ -84,7 +93,7 @@ public class RedisAppender extends AppenderSkeleton {
                 // long expendHere = System.nanoTime() - begin;
                 // System.out.println("Expend here: " + expendHere + " ns");
             }
-        }, 1000, 1000);
+        }, 500, 500);
     }
 
     protected void append(LoggingEvent event) {
