@@ -3,7 +3,9 @@ log4j2redis
 
 log4j appender that writes straight to Redis.
 
-(the 42 looking thingy in the name is intended, yes)
+The appender works with log4j 1.x series and is currently not supporting the newer log4j 2.x series. 
+
+The code is released under Apache License 2.0.
 
 ## Configuration
 
